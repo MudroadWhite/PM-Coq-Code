@@ -4458,10 +4458,10 @@ Axiom n9_11 : ∀x y : Set, ∀ F : Set→Prop, ((F x ∨ F y) → (∃z : Set, 
 Axiom n9_13 : ∀x : Set, ∀ F : Set→Prop, (F x → (∀ y : Set, F y)).
 
 Variable x : Set.
-Definition G : Prop -> Prop := (func x  => x).
+Definition G : Prop -> Prop := (fun x  => x).
 
 
-Theorem n9_2 : ∀ y : Set, ∀ F : Set→Prop, ((∀ x : Set, F x) → F y).
+(* Theorem n9_2 : ∀ y : Set, ∀ F : Set→Prop, ((∀ x : Set, F x) → F y).
 Proof. intros y F.
   specialize n2_1 with (F y).
   intro n2_1a.
@@ -4476,7 +4476,7 @@ Proof. intros y F.
     by now apply n9_01.
   rewrite <- Impl1_01 in n9_1a.
   apply n9_1a.
-
+ *)
 
 End QL9.
 
@@ -4556,7 +4556,7 @@ Proof. intros Phi Psi z.
   (** S1 **)
   specialize Id2_08 with (forall z: Prop, Psi z -> Psi z). intros Id2_08a.
   (** S2 **)
-  specialize n9_1 with Phi y. intro n9_1a.
+  specialize n9_1 with (Phi y). intro n9_1a.
   
   (** S3 **)
   

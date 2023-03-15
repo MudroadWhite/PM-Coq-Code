@@ -53,11 +53,88 @@ Print ctx_two_vars.
 (************************************************)
 (* De Bruijin Index Interpretation *)
 
-(* Inductive deBruijin :=
-  | L : deBruijin -> deBruijin (* Abstraction *)
-  | A : deBruijin -> deBruijin (* Appllication *)
-  | N : nat -> deBruijin (* Index *)
-  . *)
+Inductive ePropDB :=
+  | TrueDB : ePropDB
+  | FalseDB : ePropDB
+  | UnitDB : nat -> ePropDB
+  | InjDB : ePropDB -> ePropDB -> ePropDB (*OR*)
+  | ConjDB : ePropDB -> ePropDB -> ePropDB (*AND*)
+  | ImpDB : ePropDB -> ePropDB -> ePropDB
+  | NegDB : ePropDB -> ePropDB
+  | AbsDB : ePropDB -> ePropDB
+  | AppDB : ePropDB -> ePropDB -> ePropDB
+  .
+
+Notation envDB := (list (nat * string)).
+
+(* **************************************** *)
+(* 1ST ATTEMPT *)
+
+(* Definition string_eq (s1 s2 : string) : bool :=
+  match string_dec s1 s2 with
+  | left _ => true
+  | right _ => false
+  end.
+
+Fixpoint findVar (s : string) (env : envDB) : bool :=
+  match env with
+  | nil => false
+  | (_, s') :: es => 
+    if string_eq s s' then true 
+    else findVar s es
+  end.
+
+Fixpoint createVar (s : string) (env : envDB) : envDB. Admitted.
+
+Fixpoint interp (p : eProp) (env : envDB) : (ePropDB, envDB) :=
+  match p with
+  | TrueP => (TrueDB, env)
+  | FalseP => (FalseDB, env)
+  (* TODO: change environment *)
+  (* TODO: carefully calculate a variable's number? *)
+  | UnitP s => if findVar s env then _ else ((UnitDB 0), env)
+  | InjP n1 n2 => match interpX n1 ctx xx, interpX n2 ctx xx with
+                  | FalseP, FalseP => FalseP
+                  | _, _ => TrueP
+                  end
+  | ConjP n1 n2 => match interpX n1 ctx xx, interpX n2 ctx xx with
+                  | TrueP, TrueP => TrueP
+                  | _, _ => FalseP
+                  end
+  | ImpP n1 n2 => match interpX n1 ctx xx, interpX n2 ctx xx with
+                  | FalseP, _ => TrueP
+                  | TrueP, TrueP => TrueP
+                  | _, _ => FalseP
+                  end
+  | NegP n => match interpX n ctx xx with
+                  | TrueP => FalseP
+                  | _ => TrueP
+                  end *)
+
+(* **************************************** *)
+
+(* 2ND ATTEMPT *)
+(* **************************************** *)
+
+(* (* *Incomplete* This interp will only translate the proposition to a term and doesn't evaluate it *)
+Fixpoint interp (p : eProp) : eProp := 
+  match p with 
+  (* How to determine when to add new variable? *)
+  | UnitP n => UnitP n
+  | TrueP => TrueP
+  | FalseP => FalseP
+  | InjP p1 p2 => InjP (interp p1) (interp p2)
+  | ConjP p1 p2 => ConjjP (interp p1) (interp p2)
+  | ImpP p1 p2 => ImpP (interp p1) (interp p2)
+  | AbsP p => AbsP (interp p)
+  | AppP p1 p2 => AppP (interp p1) (interp p2)
+  | NegP p => NegP (interp p)
+  end. *)
+
+(* **************************************** *)
+
+(* 3RD ATTEMPT *)
+(* **************************************** *)
 
 Fixpoint shift (d : nat) (c : nat) (f : eProp) : eProp :=
   match f with
@@ -88,6 +165,22 @@ Fixpoint countDepth (p : eProp) (n : nat) : nat :=
   | NegP _ => n+1
   end.
 
+(* Ideal case:
+
+#"x" /\ #"y" /\ #"z"
+== interpret into =>
+$0 /\ $1 /\ $2 <= with a "environment" == [($0, "x"), ($1, "y"), ($2, "z")]
+
+TODO:
+  if (find var in env)
+  => interpret as var
+  else => shift all vars and interpret as new var
+*)
+
+(* (* This interp translates and evaluates the proposition to a de bruijin term to the end 
+
+   The interpretation is actually a big-step evaluation. Maybe I just need to merely 
+ interpret it rather than evaluate it... *)
 Fixpoint interpX (p : eProp) (ctx : context) (x : nat) {struct x} : eProp :=
   match x with
   | 0 => FalseP
@@ -115,7 +208,6 @@ Fixpoint interpX (p : eProp) (ctx : context) (x : nat) {struct x} : eProp :=
         (* Append a variable to environment and add 1 index to all other values *)
         | AbsP t1 => AbsP (interpX t1 (UnitP 0 :: map (shift 1 0) ctx) xx)
         | AppP t1 t2 => match interpX t1 ctx xx with
-                       (* Problem: Cannot guess decreasing argument of fix *)
                        | AbsP t3 => interpX t3 ((interpX t2 ctx xx) :: (map (shift 1 0) ctx)) xx
                        | _ => AppP (interpX t1 ctx xx) (interpX t2 ctx xx)
                        end
@@ -123,7 +215,9 @@ Fixpoint interpX (p : eProp) (ctx : context) (x : nat) {struct x} : eProp :=
   end.
 
 Definition interp (p : eProp) (ctx : context) : eProp := 
-  interpX p ctx (countDepth p 1).
+  interpX p ctx (countDepth p 1). *)
+
+(* **************************************** *)
 
 Notation "[[ p ]]" := (interp p nil).
 Notation "[[ p | ctx ]]" := (interp p ctx).
@@ -148,12 +242,15 @@ Inductive asserted : context -> eProp -> Prop :=
 
 Notation Pp := (asserted nil).
 
-Definition pp1_1 (p : eProp) : Prop := Pp (#0).
+Definition pp1_1 (p : eProp) : Prop := forall e: eProp, Pp [[ e ]].
 
-Definition pp1_11 (p : eProp) : Prop := forall (c1 c12: context) (e1 e2: eProp),
-  asserted c1 e1
-  -> asserted c12 (ImpP e1 e2)
-  -> asserted (append_ctx c1 c12) e2.
+(* ??????????????REFER TO PM TO CHECK WHAT IS THIS *)
+(*  REALLY NEED TO REFACTOR THE CONTEXT??? *)
+(* GOAL: How to present a JUDGEMENT *)
+Definition pp1_11 (p : eProp) : Prop := forall (e1 e2: eProp),
+  asserted [[ e1 ]]
+  -> asserted [[ e1 =) e2 ]]
+  -> asserted [[ e2 ]].
 
 Definition pp1_2 := forall p: eProp, 
   Pp (ImpP (p /\ p) p).
