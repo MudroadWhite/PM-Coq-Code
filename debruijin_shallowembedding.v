@@ -70,6 +70,18 @@ Notation envDB := (list (nat * string)).
 (* **************************************** *)
 (* 1ST ATTEMPT *)
 
+(* Ideal case for deep interpretation:
+
+#"x" /\ #"y" /\ #"z"
+== interpret into =>
+$0 /\ $1 /\ $2 <= with a "environment" == [($0, "x"), ($1, "y"), ($2, "z")]
+
+TODO:
+  if (find var in env)
+  => interpret as var
+  else => shift all vars and interpret as new var
+*)
+
 (* Definition string_eq (s1 s2 : string) : bool :=
   match string_dec s1 s2 with
   | left _ => true
@@ -116,27 +128,63 @@ Fixpoint interp (p : eProp) (env : envDB) : (ePropDB, envDB) :=
 (* 2ND ATTEMPT *)
 (* **************************************** *)
 
-(* (* *Incomplete* This interp will only translate the proposition to a term and doesn't evaluate it *)
-Fixpoint interp (p : eProp) : eProp := 
+Require Import Coq.Lists.List.
+Import ListNotations.
+
+Inductive expr : Set :=
+  | Var : nat -> expr
+  | Abs : expr -> expr
+  | App : expr -> expr -> expr.
+
+Inductive db_expr : Set :=
+  | Db_Var : nat -> db_expr
+  | Db_Abs : db_expr -> db_expr
+  | Db_App : db_expr -> db_expr -> db_expr.
+
+Fixpoint index_of (n : nat) (l : list nat) : option nat :=
+  match l with
+  | [] => None
+  | x :: xs => if n =? x then Some 0 else option_map S (index_of n xs)
+  end.
+
+Fixpoint interpX (e : expr) (ctx : list nat) : option db_expr :=
+  match e with
+  | Var n => option_map Db_Var (index_of n ctx)
+  | Abs e => match interpX e (0 :: map S ctx) with
+             | Some e' => Some (Db_Abs e')
+             | None => None
+             end
+  | App e1 e2 => match interpX e1 ctx, interpX e2 ctx with
+                | Some e1', Some e2' => Some (Db_App e1' e2')
+                | _, _ => None
+                end
+  end.
+
+Definition interp (e : expr) : option db_expr :=
+  interpX e [].
+
+
+(* *Incomplete* This interp will only translate the proposition to a term and doesn't evaluate it *)
+Fixpoint interpX (p : eProp) (d : nat): eProp := 
   match p with 
   (* How to determine when to add new variable? *)
-  | UnitP n => UnitP n
+  | UnitP n => UnitP (d - n - 1)
   | TrueP => TrueP
   | FalseP => FalseP
   | InjP p1 p2 => InjP (interp p1) (interp p2)
-  | ConjP p1 p2 => ConjjP (interp p1) (interp p2)
+  | ConjP p1 p2 => ConjP (interp p1) (interp p2)
   | ImpP p1 p2 => ImpP (interp p1) (interp p2)
   | AbsP p => AbsP (interp p)
   | AppP p1 p2 => AppP (interp p1) (interp p2)
   | NegP p => NegP (interp p)
-  end. *)
+  end.
 
 (* **************************************** *)
 
 (* 3RD ATTEMPT *)
 (* **************************************** *)
 
-Fixpoint shift (d : nat) (c : nat) (f : eProp) : eProp :=
+(* Fixpoint shift (d : nat) (c : nat) (f : eProp) : eProp :=
   match f with
   | UnitP n =>
       if leb c n then UnitP (d + n) else UnitP n
@@ -164,18 +212,6 @@ Fixpoint countDepth (p : eProp) (n : nat) : nat :=
   | AppP p1 p2 => max (countDepth p1 n) (countDepth p2 n) + 1
   | NegP _ => n+1
   end.
-
-(* Ideal case for deep interpretation:
-
-#"x" /\ #"y" /\ #"z"
-== interpret into =>
-$0 /\ $1 /\ $2 <= with a "environment" == [($0, "x"), ($1, "y"), ($2, "z")]
-
-TODO:
-  if (find var in env)
-  => interpret as var
-  else => shift all vars and interpret as new var
-*)
 
 (* This interp translates and evaluates the proposition to a de bruijin term to the end 
 
@@ -215,7 +251,7 @@ Fixpoint interpX (p : eProp) (ctx : context) (x : nat) {struct x} : eProp :=
   end.
 
 Definition interp (p : eProp) (ctx : context) : eProp := 
-  interpX p ctx (countDepth p 1).
+  interpX p ctx (countDepth p 1). *)
 
 (* **************************************** *)
 
@@ -230,6 +266,14 @@ Example interp_3 : eProp := [[ ep5 | (AbsP (#0)) :: (AbsP (#0)) :: nil]].
 (* ctx1 :=  (AbsP (#0)) :: (AbsP (#0)) :: nil *)
 (* ctx2 :=  (AbsP (#0)) :: (AbsP (#1)) :: nil *)
 (* TODO: figure out why the result is different *)
+
+(*
+AppP (AbsP (#2)) (#0) | (AbsP (#0)) :: (AbsP (#0)) :: nil
+= [(AbsP (#2)) | ctx]
+
+AppP (AbsP (#2)) (#0) | (AbsP (#0)) :: (AbsP (#1)) :: nil
+
+*)
 
 Compute interp_1.
 Compute interp_2.

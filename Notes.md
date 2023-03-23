@@ -66,7 +66,9 @@ With the power of `interp`, proposition should be recorded in a style like follo
 Theorem x : forall (x y z : eProp), asserted [[ P(x, y, z) ]] (* For some proposition P *).
 ```
 
-Referring back to [Inconsistent Proof Style](###Problem 1:\ Inconsistent Proof Style) issue in `PL.v`, we somehow wish to see we can introduce a new variable as we like during the proof procedure. Does it really work out for this interpretation? Can it present a new variable as needed?... For now, it seems to be ok.
+Referring back to [Inconsistent Proof Style](###Problem 1:\ Inconsistent Proof Style) issue in `PL.v`, we somehow wish to see we can introduce a new variable as we like during the proof procedure. Does it really work out for this interpretation? Can it present a new variable as needed?
+
+**Plan**: I think I have figured out the way to completely resolve this problem. In `interp`'s `Unit` case, it is supposed to interpret the variable into a natural number standing for index. We can define in similar style a `subst` to substitute the whole `Unit` term to some other more complicated term. At least, on a very superficial look, it should be enough.
 
 **(BELOW IS DRAFT)**
 
