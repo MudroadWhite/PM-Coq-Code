@@ -248,9 +248,9 @@ Definition pp1_1 (p : eProp) : Prop := forall e: eProp, Pp [[ e ]].
 (*  REALLY NEED TO REFACTOR THE CONTEXT??? *)
 (* GOAL: How to present a JUDGEMENT *)
 Definition pp1_11 (p : eProp) : Prop := forall (e1 e2: eProp),
-  asserted [[ e1 ]]
-  -> asserted [[ e1 =) e2 ]]
-  -> asserted [[ e2 ]].
+  asserted nil [[ e1 ]]
+  -> asserted nil [[ e1 =) e2 ]]
+  -> asserted nil [[ e2 ]].
 
 Definition pp1_2 := forall p: eProp, 
   Pp (ImpP (p /\ p) p).

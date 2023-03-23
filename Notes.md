@@ -48,6 +48,8 @@ The reference y was not found in the current environment.
 
 Another problem is the type for the propositions and variables. (**TODO: to be explained here in detail for future reference**)
 
+### Conclusion
+
 To solve this issue, Landon suggests that I should make a De Bruijin shallow embedding on PM. Some initial difficulties are being met, such as "What is a shallow embedding?" "How do I write a shallow embedding?" and these problems are partially resolved with ChatGPT.
 
 ## debruijin_shallowembedding.v
@@ -56,30 +58,7 @@ To solve this issue, Landon suggests that I should make a De Bruijin shallow emb
 
 Several problems arrives: 1. Is `interp` actually working as I wished? This happens when I use some cases to test this function. 2. How should you record the propositions in PM with the interp function? 3. What does it mean to derive(|-) in this sense? 4. What is the context for derive? It seems different from the "context" of `interp`. Here should be with a renaming issue.
 
-### Problem 1: Weird `context` Error
-
-The first problem that should arrive however is when I record this proposition:
-
-```coq
-Definition pp1_11 (p : eProp) : Prop := forall (e1 e2: eProp),
-  asserted [[ e1 ]]
-  -> asserted [[ e1 =) e2 ]]
-  -> asserted [[ e2 ]].
-```
-
-For the `asserted [[ e1 ]]` the Coq will report
-
-```
-In environment
-p : eProp
-e1 : eProp
-e2 : eProp
-The term "[[e1]]" has type "eProp" while it is expected to have type "context".
-```
-
-And I still don't know what it means.
-
-### Problem 2: Compatibility with Forward Proof
+### Problem 1: Compatibility with Forward Proof
 
 With the power of `interp`, proposition should be recorded in a style like follows:
 
