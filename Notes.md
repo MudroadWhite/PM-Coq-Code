@@ -14,9 +14,29 @@ Proof. intros Phi Psi z.
   specialize Id2_08 with (forall z: Prop, Psi z -> Psi z). intros Id2_08a.
   (** S2 **)
   specialize n9_1 with (Phi y). intro n9_1a.
-  (** S3 **)
 Admitted.
 ```
+
+Now let's look back to the original proof on PM. Using modern logical connectives it can be written like this:
+
+```
+*9.21. |- (Ax.p(x) -> q(x)) -> (Ax.p(x)) -> Ax.q(x)
+Proof. (*The brackets for predicates will be ignored for brevity*)
+(*1)	|- *2.08 			-> |- (pz -> qz) -> (pz -> qz) 
+(*2)	|- (1).*9.1			-> |- Ey.(pz -> qz) -> (py -> qz)
+(3)		|- (2).*9.1			-> |- Ex.Ey.(px -> qx) -> (py -> qz)
+(4)		|- (3).*9.13		-> |- Az.Ex.Ey.(px -> qx) -> (py -> qz)
+(5)		[(4).*9.06]			|- Az.(Ex.px -> qx) -> (Ey.py -> qz)
+(6)		[(5).(*1.01.*9.08)]	|- (Ex.~(px -> qx)) \/ Az.Ey.(~py \/ qz)
+(7) 	[(6).(*9.08)]		|- (Ex.~(px -> qx)) \/ Ey.(~py \/ Az.qz)
+(8) 	[(7).(*1.01)]		|- (Ax.px -> qx) -> (Ay.py) -> Az.qz
+```
+
+Let's look at the two lines with stars. We can see that we can indeed introduce `forall z: Prop, Psi z -> Psi z` into the context and match the `(1)` in the original proof. But let's take a look at what would happen for `(2)`. `Id2_08` is defined as `∀ P : Prop,  P → P.`  We somehow want to introduce a new variable `y` into the context, without disturbing the way that PM goes on its proof. Coq does not go its proof in the same way as PM does so we might have to build a language to translate the proof. Otherwise, if we go on with `  specialize n9_1 with (Phi y)`, Coq will report that 
+
+> The reference y was not found in the current environment.
+
+Another problem is the type for the propositions and variables. (**TODO: to be explained here in detail for future reference**)
 
 To solve this issue, Landon suggests that I should make a De Bruijin shallow embedding on PM. Some initial difficulties are being met, such as "What is a shallow embedding?" "How do I write a shallow embedding?" and these problems are partially resolved with ChatGPT.
 
@@ -26,7 +46,7 @@ To solve this issue, Landon suggests that I should make a De Bruijin shallow emb
 
 Several problems arrives: 1. Is `interp` actually working as I wished? This happens when I use some cases to test this function. 2. How should you record the propositions in PM with the interp function? 3. What does it mean to derive(|-) in this sense? 4. What is the context for derive? It seems different from the "context" of `interp`. Here should be with a renaming issue.
 
-### 2 How to record propositions
+### Problem 2: How to record propositions
 
 With the power of `interp`, proposition should be recorded in a style like follows:
 
