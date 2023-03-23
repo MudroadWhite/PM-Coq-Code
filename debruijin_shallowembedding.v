@@ -252,22 +252,25 @@ Definition pp1_11 (p : eProp) : Prop := forall (e1 e2: eProp),
   -> asserted nil [[ e1 =) e2 ]]
   -> asserted nil [[ e2 ]].
 
-Definition pp1_2 := forall p: eProp, 
-  Pp (ImpP (p /\ p) p).
+Definition pp1_2 := forall p: eProp, Pp [[ (p /\ p) =) p ]].
 
-Definition pp1_3 := forall p q: eProp,
-  Pp (ImpP q (InjP p q)).
+Definition pp1_3 := forall p q: eProp, Pp [[ q =) (p \/ q) ]].
 
-Definition pp1_4 := forall p q: eProp,
-  Pp (ImpP (InjP p q) (InjP q p)).
+Definition pp1_4 := forall p q: eProp, Pp [[ (p \/ q) =) (q \/ p) ]].
 
-Definition pp1_5 := forall p q r: eProp,
-  Pp (ImpP (InjP p (InjP q r)) (InjP q (InjP p r))).
+Definition pp1_5 := forall p q r: eProp, Pp [[ (p \/ (q \/ r)) =) (q \/ (p \/ r)) ]].
 
-(* Definition pp1_6 := forall p q r: eProp,
-  Pp ()
- *)
+Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) ]].
 
+(* Theorem pp1_7: Pp (If p is a eProp, then ~p is a eProp). *)
+
+(* Theorem pp1_71: Pp (If p, q are eProps, then p \/ q is a eProp). *)
+
+(* Theorem pp1_72: Pp (If p, q are elemental functions, then p(x) \/ q(x) is a elemental function). *)
+
+Theorem pp2_01 : forall p: eProp, asserted nil [[ (p =) (--p)) =) (--p) ]].
+Proof.
+Admitted.
 
 
 End PM.
