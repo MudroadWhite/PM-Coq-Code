@@ -87,7 +87,7 @@ With the power of `interp`, proposition should be recorded in a style like follo
 Theorem x : forall (x y z : eProp), asserted [[ P(x, y, z) ]] (* For some proposition P *).
 ```
 
-Referring back to [Inconsistent Proof Style](###Problem 1: Inconsistent Proof Style) issue in `PL.v`, we somehow wish to see we can introduce a new variable as we like during the proof procedure. Does it really work out for this interpretation? Can it present a new variable as needed?... For now, it seems to be ok.
+Referring back to [Inconsistent Proof Style](###Problem 1:\ Inconsistent Proof Style) issue in `PL.v`, we somehow wish to see we can introduce a new variable as we like during the proof procedure. Does it really work out for this interpretation? Can it present a new variable as needed?... For now, it seems to be ok.
 
 **(BELOW IS DRAFT)**
 
