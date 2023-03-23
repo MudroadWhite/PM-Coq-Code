@@ -244,9 +244,6 @@ Notation Pp := (asserted nil).
 
 Definition pp1_1 (p : eProp) : Prop := forall e: eProp, Pp [[ e ]].
 
-(* ??????????????REFER TO PM TO CHECK WHAT IS THIS *)
-(*  REALLY NEED TO REFACTOR THE CONTEXT??? *)
-(* GOAL: How to present a JUDGEMENT *)
 Definition pp1_11 (p : eProp) : Prop := forall (e1 e2: eProp),
   asserted nil [[ e1 ]]
   -> asserted nil [[ e1 =) e2 ]]
@@ -262,7 +259,7 @@ Definition pp1_5 := forall p q r: eProp, Pp [[ (p \/ (q \/ r)) =) (q \/ (p \/ r)
 
 Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) ]].
 
-(* Theorem pp1_7: Pp (If p is a eProp, then ~p is a eProp). *)
+(* Theorem pp1_7: Pp (If p is a eProp, then --p is a eProp). *)
 
 (* Theorem pp1_71: Pp (If p, q are eProps, then p \/ q is a eProp). *)
 
@@ -270,6 +267,13 @@ Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) 
 
 Theorem pp2_01 : forall p: eProp, asserted nil [[ (p =) (--p)) =) (--p) ]].
 Proof.
+
+(* TODO:
+I should find a way to present something like this:
+I can use Taut with --p substitute for p as a proposition.
+This proposition serves as a "Antecedent".
+With this proposition we can arrive at the latter proof.
+*)
 Admitted.
 
 
