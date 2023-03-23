@@ -177,7 +177,7 @@ TODO:
   else => shift all vars and interpret as new var
 *)
 
-(* (* This interp translates and evaluates the proposition to a de bruijin term to the end 
+(* This interp translates and evaluates the proposition to a de bruijin term to the end 
 
    The interpretation is actually a big-step evaluation. Maybe I just need to merely 
  interpret it rather than evaluate it... *)
@@ -215,7 +215,7 @@ Fixpoint interpX (p : eProp) (ctx : context) (x : nat) {struct x} : eProp :=
   end.
 
 Definition interp (p : eProp) (ctx : context) : eProp := 
-  interpX p ctx (countDepth p 1). *)
+  interpX p ctx (countDepth p 1).
 
 (* **************************************** *)
 
