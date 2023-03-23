@@ -165,7 +165,7 @@ Fixpoint countDepth (p : eProp) (n : nat) : nat :=
   | NegP _ => n+1
   end.
 
-(* Ideal case:
+(* Ideal case for deep interpretation:
 
 #"x" /\ #"y" /\ #"z"
 == interpret into =>
@@ -265,14 +265,17 @@ Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) 
 
 (* Theorem pp1_72: Pp (If p, q are elemental functions, then p(x) \/ q(x) is a elemental function). *)
 
-Theorem pp2_01 : forall p: eProp, asserted nil [[ (p =) (--p)) =) (--p) ]].
+Theorem n2_01 : forall p: eProp, asserted nil [[ (p =) (--p)) =) (--p) ]].
 Proof.
 
 (* TODO:
 I should find a way to present something like this:
+
 I can use Taut with --p substitute for p as a proposition.
 This proposition serves as a "Antecedent".
 With this proposition we can arrive at the latter proof.
+
+I need to make sure the interpretation does not go wrong in advance.
 *)
 Admitted.
 
