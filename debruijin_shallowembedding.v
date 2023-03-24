@@ -20,7 +20,7 @@ Inductive eProp :=
   .
 
 (* The level is slightly lower than the level for list operator :: . *)
-Notation "# x" := (UnitP x) (at level 59, right associativity).
+Notation "# x" := (UnitP x) (at level 58, right associativity).
 Notation "x \/ y" := (InjP x y).
 Notation "x /\ y" := (ConjP x y).
 Notation "-- x" := (NegP x) (at level 59, right associativity).
@@ -33,7 +33,7 @@ Example ep1 : eProp := (# 0) \/ (# 1).
 Print ep1.
 Example ep2 : eProp := -- (#0 /\ #1).
 Print ep2.
-Example ep3 : eProp := AbsP (# 0). (* lambda x.x *)
+Example ep3 : eProp := AbsP (#0). (* lambda x.x *)
 Print ep3.
 Example ep4 := AbsP (#0).
 Example ep5 := AppP (AbsP (#2)) (#0).
@@ -65,7 +65,58 @@ Inductive ePropDB :=
   | AppDB : ePropDB -> ePropDB -> ePropDB
   .
 
-Notation envDB := (list (nat * string)).
+(* Notation envDB := (list (nat * string)). *)
+Notation envDB := (list nat).
+
+(* Suppose the edge case never happens... *)
+
+Fixpoint lookup (n : nat) (l : envDB) : nat :=
+  match l with
+  | nil => 0
+  | x :: xs => if n =? x then 0 else S (lookup n xs)
+  end.
+
+Fixpoint interpX (p : eProp) (env : envDB) : ePropDB :=
+  match p with
+  | TrueP => TrueDB
+  | FalseP => FalseDB
+  | UnitP n => UnitDB (lookup n env)
+  | InjP n1 n2 => InjDB (interpX n1 env) (interpX n2 env)
+  | ConjP n1 n2 => ConjDB (interpX n1 env) (interpX n2 env)
+  | ImpP n1 n2 => ImpDB (interpX n1 env) (interpX n2 env)
+  | NegP n => NegDB (interpX n env)
+  | AbsP p => AbsDB (interpX p (0 :: map S env))
+  | AppP p1 p2 => AppDB (interpX p1 env) (interpX p2 env)
+  end.
+
+Notation "[[ p ]]" := (interpX p nil).
+Notation "[[ p | env ]]" := (interpX p env).
+
+Example interp_1 : ePropDB := [[ AbsP (#0) ]].
+Compute interp_1.
+Example interp_2 : ePropDB := [[ AbsP (AbsP (#0)) ]].
+Compute interp_2.
+Example interp_3 : ePropDB := [[ AppP (AbsP (AppP (#0) (#0))) (AbsP (AppP (#0) (#0))) ]].
+Compute interp_3.
+(* NOTE: if the env is nil, the number being returned will be directly cut down to 0. Hence 
+the interpreted number appears to be 1.
+The thing here could be that, even in the original language the abstraction is still somehow
+fuzzy. We don't know what is x, what is y and what does the unit number means. Or maybe it
+actually saved some efforts. *)
+Example interp_4 : ePropDB := [[ AppP (AbsP (AppP (#10) (#10))) (AbsP (AppP (#10) (#10))) ]].
+Compute interp_4.
+
+(* STUB *)
+Fixpoint substX (p : ePropDB) (env : list eProp) : ePropDB :=
+  match p with
+  | _ => UnitDB 100
+  end.
+
+(* STUB *)
+Fixpoint evalX (p : ePropDB) (env : list eProp) : ePropDB :=
+  match p with
+  | _ => UnitDB 100
+  end.
 
 (* **************************************** *)
 (* 1ST ATTEMPT *)
@@ -124,64 +175,7 @@ Fixpoint interp (p : eProp) (env : envDB) : (ePropDB, envDB) :=
                   end *)
 
 (* **************************************** *)
-
 (* 2ND ATTEMPT *)
-(* **************************************** *)
-
-Require Import Coq.Lists.List.
-Import ListNotations.
-
-Inductive expr : Set :=
-  | Var : nat -> expr
-  | Abs : expr -> expr
-  | App : expr -> expr -> expr.
-
-Inductive db_expr : Set :=
-  | Db_Var : nat -> db_expr
-  | Db_Abs : db_expr -> db_expr
-  | Db_App : db_expr -> db_expr -> db_expr.
-
-Fixpoint index_of (n : nat) (l : list nat) : option nat :=
-  match l with
-  | [] => None
-  | x :: xs => if n =? x then Some 0 else option_map S (index_of n xs)
-  end.
-
-Fixpoint interpX (e : expr) (ctx : list nat) : option db_expr :=
-  match e with
-  | Var n => option_map Db_Var (index_of n ctx)
-  | Abs e => match interpX e (0 :: map S ctx) with
-             | Some e' => Some (Db_Abs e')
-             | None => None
-             end
-  | App e1 e2 => match interpX e1 ctx, interpX e2 ctx with
-                | Some e1', Some e2' => Some (Db_App e1' e2')
-                | _, _ => None
-                end
-  end.
-
-Definition interp (e : expr) : option db_expr :=
-  interpX e [].
-
-
-(* *Incomplete* This interp will only translate the proposition to a term and doesn't evaluate it *)
-Fixpoint interpX (p : eProp) (d : nat): eProp := 
-  match p with 
-  (* How to determine when to add new variable? *)
-  | UnitP n => UnitP (d - n - 1)
-  | TrueP => TrueP
-  | FalseP => FalseP
-  | InjP p1 p2 => InjP (interp p1) (interp p2)
-  | ConjP p1 p2 => ConjP (interp p1) (interp p2)
-  | ImpP p1 p2 => ImpP (interp p1) (interp p2)
-  | AbsP p => AbsP (interp p)
-  | AppP p1 p2 => AppP (interp p1) (interp p2)
-  | NegP p => NegP (interp p)
-  end.
-
-(* **************************************** *)
-
-(* 3RD ATTEMPT *)
 (* **************************************** *)
 
 (* Fixpoint shift (d : nat) (c : nat) (f : eProp) : eProp :=
@@ -255,7 +249,7 @@ Definition interp (p : eProp) (ctx : context) : eProp :=
 
 (* **************************************** *)
 
-Notation "[[ p ]]" := (interp p nil).
+(* Notation "[[ p ]]" := (interp p nil).
 Notation "[[ p | ctx ]]" := (interp p ctx).
 
 Example interp_1 : eProp := [[ ep1 ]].
@@ -277,23 +271,28 @@ AppP (AbsP (#2)) (#0) | (AbsP (#0)) :: (AbsP (#1)) :: nil
 
 Compute interp_1.
 Compute interp_2.
-Compute interp_3.
+Compute interp_3. *)
 
 (************************************************)
 
-Inductive asserted : context -> eProp -> Prop := 
-  | Asserted : forall (c : context) (e : eProp), asserted c e.
+Inductive asserted : context -> ePropDB -> Prop := 
+  | Asserted : forall (c : context) (e : ePropDB), asserted c e.
 
 Notation Pp := (asserted nil).
 
-Definition pp1_1 (p : eProp) : Prop := forall e: eProp, Pp [[ e ]].
+Definition pp1_1 (e : eProp) := [[ e ]].
+(*
+asserted nil e : Prop :=
+Asserted : forall (c : context)
 
-Definition pp1_11 (p : eProp) : Prop := forall (e1 e2: eProp),
+*)
+
+Definition pp1_11 := forall (e1 e2: eProp),
   asserted nil [[ e1 ]]
   -> asserted nil [[ e1 =) e2 ]]
   -> asserted nil [[ e2 ]].
 
-Definition pp1_2 := forall p: eProp, Pp [[ (p /\ p) =) p ]].
+Definition pp1_2 := forall p: eProp, Pp [[ (p \/ p) =) p ]].
 
 Definition pp1_3 := forall p q: eProp, Pp [[ q =) (p \/ q) ]].
 
@@ -311,7 +310,8 @@ Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) 
 
 Theorem n2_01 : forall p: eProp, asserted nil [[ (p =) (--p)) =) (--p) ]].
 Proof.
-
+  intros.
+  specialize pp1_1.
 (* TODO:
 I should find a way to present something like this:
 

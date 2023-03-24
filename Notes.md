@@ -24,14 +24,14 @@ Now let's look back to the original proof on PM. Using modern logical connective
 ```
 *9.21. |- (Ax.p(x) -> q(x)) -> (Ax.p(x)) -> Ax.q(x)
 Proof. (*The brackets for predicates will be ignored for brevity*)
-(*1)	|- *2.08 			-> |- (pz -> qz) -> (pz -> qz) 
-(*2)	|- (1).*9.1			-> |- Ey.(pz -> qz) -> (py -> qz)
-(3)		|- (2).*9.1			-> |- Ex.Ey.(px -> qx) -> (py -> qz)
-(4)		|- (3).*9.13		-> |- Az.Ex.Ey.(px -> qx) -> (py -> qz)
-(5)		[(4).*9.06]			|- Az.(Ex.px -> qx) -> (Ey.py -> qz)
-(6)		[(5).(*1.01.*9.08)]	|- (Ex.~(px -> qx)) \/ Az.Ey.(~py \/ qz)
-(7) 	[(6).(*9.08)]		|- (Ex.~(px -> qx)) \/ Ey.(~py \/ Az.qz)
-(8) 	[(7).(*1.01)]		|- (Ax.px -> qx) -> (Ay.py) -> Az.qz
+(*1)    |- *2.08 			-> |- (pz -> qz) -> (pz -> qz) 
+(*2)    |- (1).*9.1			-> |- Ey.(pz -> qz) -> (py -> qz)
+(3)     |- (2).*9.1			-> |- Ex.Ey.(px -> qx) -> (py -> qz)
+(4)     |- (3).*9.13		-> |- Az.Ex.Ey.(px -> qx) -> (py -> qz)
+(5)     [(4).*9.06]			|- Az.(Ex.px -> qx) -> (Ey.py -> qz)
+(6)     [(5).(*1.01.*9.08)]	|- (Ex.~(px -> qx)) \/ Az.Ey.(~py \/ qz)
+(7)     [(6).(*9.08)]		|- (Ex.~(px -> qx)) \/ Ey.(~py \/ Az.qz)
+(8)     [(7).(*1.01)]		|- (Ax.px -> qx) -> (Ay.py) -> Az.qz
 ```
 
 ### Problem 1: Inconsistent Proof Style
@@ -69,6 +69,10 @@ Theorem x : forall (x y z : eProp), asserted [[ P(x, y, z) ]] (* For some propos
 Referring back to [Inconsistent Proof Style](###Problem 1:\ Inconsistent Proof Style) issue in `PL.v`, we somehow wish to see we can introduce a new variable as we like during the proof procedure. Does it really work out for this interpretation? Can it present a new variable as needed?
 
 **Plan**: I think I have figured out the way to completely resolve this problem. In `interp`'s `Unit` case, it is supposed to interpret the variable into a natural number standing for index. We can define in similar style a `subst` to substitute the whole `Unit` term to some other more complicated term. At least, on a very superficial look, it should be enough.
+
+### Problem 2: Representation of Propositions
+
+
 
 **(BELOW IS DRAFT)**
 
