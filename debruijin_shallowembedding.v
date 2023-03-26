@@ -117,7 +117,7 @@ Fixpoint evalX (p : ePropDB) (env : list eProp) : ePropDB :=
   match p with
   | _ => UnitDB 100
   end.
-
+ 
 (* **************************************** *)
 (* 1ST ATTEMPT *)
 
@@ -275,12 +275,18 @@ Compute interp_3. *)
 
 (************************************************)
 
-Inductive asserted : context -> ePropDB -> Prop := 
-  | Asserted : forall (c : context) (e : ePropDB), asserted c e.
+Inductive asserted : ePropDB -> Prop := 
+  | Asserted : forall (e: ePropDB), asserted e.
 
-Notation Pp := (asserted nil).
+Definition extract (p : Prop) : ePropDB :=
+  match p with
+  | Asserted _ => UnitDB 100
+  | _ => UnitDB 100
+  end.
 
-Definition pp1_1 (e : eProp) := [[ e ]].
+Notation Pp := (asserted).
+
+Definition pp1_1 (e : eProp) : Prop := Pp [[ e ]].
 (*
 asserted nil e : Prop :=
 Asserted : forall (c : context)
@@ -288,9 +294,9 @@ Asserted : forall (c : context)
 *)
 
 Definition pp1_11 := forall (e1 e2: eProp),
-  asserted nil [[ e1 ]]
-  -> asserted nil [[ e1 =) e2 ]]
-  -> asserted nil [[ e2 ]].
+  asserted [[ e1 ]]
+  -> asserted [[ e1 =) e2 ]]
+  -> asserted [[ e2 ]].
 
 Definition pp1_2 := forall p: eProp, Pp [[ (p \/ p) =) p ]].
 
@@ -308,10 +314,19 @@ Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) 
 
 (* Theorem pp1_72: Pp (If p, q are elemental functions, then p(x) \/ q(x) is a elemental function). *)
 
-Theorem n2_01 : forall p: eProp, asserted nil [[ (p =) (--p)) =) (--p) ]].
+Require Import Coq.Program.Equality.
+
+Theorem n2_01 : forall p: eProp, Pp [[ (p =) (--p)) =) (--p) ]].
 Proof.
   intros.
-  specialize pp1_1.
+  pose (fun x =>[[ x ]]) as new_prop_r.
+  pose (new_prop_r (--p)) as new_prop.
+  change (new_prop_r (--p)) with ([[ --p ]]) in new_prop.
+  clear new_prop_r.
+  pose (Pp new_prop) as new_prop_pp.
+  change (Pp new_prop) with (Pp [[ --p ]]) in new_prop_pp.
+  destruct new_prop_pp as [e].
+
 (* TODO:
 I should find a way to present something like this:
 

@@ -48,6 +48,8 @@ The reference y was not found in the current environment.
 
 Another problem is the type for the propositions and variables. (**TODO: to be explained here in detail for future reference**)
 
+### Problem 3: New Variable
+
 ### Conclusion
 
 To solve this issue, Landon suggests that I should make a De Bruijin shallow embedding on PM. Some initial difficulties are being met, such as "What is a shallow embedding?" "How do I write a shallow embedding?" and these problems are partially resolved with ChatGPT.
@@ -72,7 +74,7 @@ Referring back to [Inconsistent Proof Style](###Problem 1:\ Inconsistent Proof S
 
 ### Problem 2: Representation of Propositions
 
-
+(TODO: )
 
 **(BELOW IS DRAFT)**
 

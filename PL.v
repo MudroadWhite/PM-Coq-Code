@@ -4556,8 +4556,9 @@ Proof. intros Phi Psi z.
   (** S1 **)
   specialize Id2_08 with (forall z: Prop, Psi z -> Psi z). intros Id2_08a.
   (** S2 **)
-  specialize n9_1 with (Phi y). intro n9_1a.
-  
+(*   assert (y : Prop). exact True.
+  specialize n9_1 with Phi y. intro n9_1a.
+  specialize n9_1a with  *)
   (** S3 **)
   
 
