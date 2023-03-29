@@ -275,38 +275,43 @@ Compute interp_3. *)
 
 (************************************************)
 
-Inductive asserted : ePropDB -> Prop := 
+(*  
+NOTE:
+Here I have to use Set for asserted rather than Prop.
+The reason is that eventually I have to extract some proof from the prop.
+Prop is proof irrevalent while Set allows distinction.
+
+
+*)
+
+Inductive asserted : ePropDB -> Set := 
   | Asserted : forall (e: ePropDB), asserted e.
 
-Definition extract (p : Prop) : ePropDB :=
-  match p with
-  | Asserted _ => UnitDB 100
-  | _ => UnitDB 100
-  end.
+Definition extract {e : ePropDB} (p : asserted e) : ePropDB := e.
 
-Notation Pp := (asserted).
+(* Notation Pp := (asserted). *)
 
-Definition pp1_1 (e : eProp) : Prop := Pp [[ e ]].
+Definition pp1_1 (e : eProp) : Set := asserted [[ e ]].
 (*
 asserted nil e : Prop :=
 Asserted : forall (c : context)
 
 *)
 
-Definition pp1_11 := forall (e1 e2: eProp),
+(* Definition pp1_11 := forall (e1 e2: eProp),
   asserted [[ e1 ]]
   -> asserted [[ e1 =) e2 ]]
-  -> asserted [[ e2 ]].
+  -> asserted [[ e2 ]]. *)
 
-Definition pp1_2 := forall p: eProp, Pp [[ (p \/ p) =) p ]].
+Definition pp1_2 (p: eProp) : Set := asserted [[ (p \/ p) =) p ]].
 
-Definition pp1_3 := forall p q: eProp, Pp [[ q =) (p \/ q) ]].
+(* Definition pp1_3 := forall p q: eProp, Pp [[ q =) (p \/ q) ]].
 
 Definition pp1_4 := forall p q: eProp, Pp [[ (p \/ q) =) (q \/ p) ]].
 
 Definition pp1_5 := forall p q r: eProp, Pp [[ (p \/ (q \/ r)) =) (q \/ (p \/ r)) ]].
 
-Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) ]].
+Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) ]]. *)
 
 (* Theorem pp1_7: Pp (If p is a eProp, then --p is a eProp). *)
 
@@ -314,29 +319,27 @@ Definition pp1_6 := forall p q r: eProp, Pp [[ (q \/ r) =) (p \/ q) =) (p \/ r) 
 
 (* Theorem pp1_72: Pp (If p, q are elemental functions, then p(x) \/ q(x) is a elemental function). *)
 
-Require Import Coq.Program.Equality.
+(* Require Import Coq.Program.Equality. *)
 
-Theorem n2_01 : forall p: eProp, Pp [[ (p =) (--p)) =) (--p) ]].
+Theorem n2_01 : forall p: eProp, asserted [[ (p =) (--p)) =) (--p) ]].
 Proof.
   intros.
-  pose (fun x =>[[ x ]]) as new_prop_r.
-  pose (new_prop_r (--p)) as new_prop.
-  change (new_prop_r (--p)) with ([[ --p ]]) in new_prop.
-  clear new_prop_r.
-  pose (Pp new_prop) as new_prop_pp.
-  change (Pp new_prop) with (Pp [[ --p ]]) in new_prop_pp.
-  destruct new_prop_pp as [e].
+  pose (pp1_2 (--p)) as pp1_2_r1.
+  change (pp1_2 (--p)) with (asserted [[ ((--p) \/ (--p)) =) (--p) ]]) in pp1_2_r1.
+  
+(*   pose ((pp1_2 (--p)) : asserted [[ (-- p \/ -- p) =) -- p ]]) as pp1_2_r1. *)
+(*   change (pp1_2 (--p)) with (Asserted [[ ((--p) \/ (--p)) =) (--p) ]]) in pp1_2_r1. *)
+(*   pose (extract pp1_2_r1) as pp1_2_e. *)
 
-(* TODO:
-I should find a way to present something like this:
-
-I can use Taut with --p substitute for p as a proposition.
-This proposition serves as a "Antecedent".
-With this proposition we can arrive at the latter proof.
-
-I need to make sure the interpretation does not go wrong in advance.
-*)
+(*   Check pp1_2 (--p).
+  Check pp1_2_r1.
+  Fail pose (extract pp1_2_r1) as pp1_2_e. *)
+(*   change (asserted new_prop_r2) with (asserted [[ --p ]]) in new_prop.
+  clear new_prop_r1. clear new_prop_r2. *)
+  
 Admitted.
+
+Check n2_01.
 
 
 End PM.

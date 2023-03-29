@@ -4533,7 +4533,7 @@ Proof. Admitted.
 
 (* Proposition 9.12 - 9.15: pure texts *)
 
-Theorem n9_2 : forall (Phi : Prop -> Prop) (y : Prop), (forall x : Prop, Phi x) -> Phi y.
+Theorem n9_2 : forall (Phi : Prop -> Prop) (y : Set), (forall x : Prop, Phi x) -> Phi y.
 Proof. intros Phi y.
   (** Step 1 **)
   specialize n2_1 with (Phi y). intros n2_1a.

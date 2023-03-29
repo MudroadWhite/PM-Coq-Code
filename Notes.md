@@ -83,3 +83,15 @@ Referring back to [Inconsistent Proof Style](###Problem 1:\ Inconsistent Proof S
 The specification still misses some stuffs that appeared in the proof:
 
 - Do I need to concern about judgements like `A|-B`? Then it's definitely different from the so-called `context`.
+
+### Problem XX: Set & Prop
+
+> Quick comment about *9.05: this is a definition in *Principia*, so we should probably use "=" rather than "→". I would put:
+>
+> forall (Phi : Set→Prop) (P : Prop), ((exists x : Set, Phi x) v P) = (exists x : Set, Phi x v P).
+>
+> Notice that I put "Set" rather than "Prop" for some things. You have some things as type Prop, but *x* (e.g.) denotes a non-proposition, and is really an individual variable. If you don't feel like changing this, it is not a big deal - I can change it later - and it won't really impact the proofs and our reconstructions of them (even though it doesn't match *Principia*'s intended interpretation as closely).
+>
+> Later on, if you see "Phi!", this will also indicate an individual variable (but of type Set→Prop). But that is in *12 and beyond.
+>
+>  Variables should be Set, propositions should still be prop?
